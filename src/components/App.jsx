@@ -3,6 +3,14 @@ import { Component } from 'react';
 
 import { Contacts } from './Contacts/Contacts.jsx';
 
+import { ContactForm } from './ContactForm/ContactForm.jsx';
+
+import { Filter } from './Filter/Filter.jsx';
+
+// Стилизация
+import { Layout, HeadTitle, ContactsTitle } from './Layout.js';
+import { GlobalStyle } from './GlobaleStyle.js';
+
 export class App extends Component {
   state = {
     // contacts: [],
@@ -13,8 +21,8 @@ export class App extends Component {
       { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
     ],
     filter: '',
-    name: '',
-    number: '',
+    // name: '',
+    // number: '',
   };
 
   //*** METHODS */
@@ -26,49 +34,63 @@ export class App extends Component {
   //   });
   // };
 
-  handleChangeName = event => {
-    this.setState({ name: event.target.value });
-  };
+  // handleChangeName = event => {
+  //   this.setState({ name: event.target.value });
+  // };
 
-  handleChangeNumber = event => {
-    this.setState({ number: event.target.value });
-  };
+  // handleChangeNumber = event => {
+  //   this.setState({ number: event.target.value });
+  // };
 
-  handleSubmit = event => {
-    event.preventDefault();
+  ///*** */
+  // handleSubmit = event => {
+  //   event.preventDefault();
 
-    const { contacts, name, number } = this.state;
+  //   const { contacts, name, number } = this.state;
 
-    if (name && number) {
-      const newContact = { id: nanoid(), name, number };
+  //   if (name && number) {
+  //     const newContact = { id: nanoid(), name, number };
 
-      const findName = contacts.find(
-        contact => contact.name === newContact.name
-      );
+  //     const findName = contacts.find(
+  //       contact => contact.name === newContact.name
+  //     );
 
-      if (!findName) {
-        this.setState(prevState => ({
-          contacts: [...prevState.contacts, newContact],
-          name: '',
-          number: '',
-        }));
-      } else {
-        alert(`${name} is already in contacts!`);
-      }
+  //     if (!findName) {
+  //       this.setState(prevState => ({
+  //         contacts: [...prevState.contacts, newContact],
+  //         // name: '',
+  //         // number: '',
+  //       }));
+  //     } else {
+  //       alert(`${name} is already in contacts!`);
+  //     }
+  //   }
+  //   this.reset();
+  // };
+
+  addContact = contact => {
+    const isInContacts = this.state.contacts.some(
+      ({ name }) => name.toLowerCase() === contact.name.toLowerCase()
+    );
+
+    if (isInContacts) {
+      alert(`${contact.name} is already in contacts!`);
+      return;
     }
-    this.reset();
+
+    this.setState(prevState => ({
+      contacts: [{ id: nanoid(), ...contact }, ...prevState.contacts],
+    }));
   };
 
-  reset = () => {
-    this.setState({ name: '', number: '' });
-  };
+  //*** */ Изменение значения фильтра
 
   handleFilter = event => {
     this.setState({
       filter: event.target.value,
     });
   };
-
+  //*** Удаление контактов
   handleDelete = id => {
     this.setState(prevState => {
       return {
@@ -79,57 +101,26 @@ export class App extends Component {
 
   //*** RENDER */
   render() {
-    const { contacts, name, number, filter } = this.state;
+    const { contacts, filter } = this.state;
 
     const filterContacts = contacts.filter(contact =>
       contact.name.toLowerCase().includes(filter.toLowerCase())
     );
 
     return (
-      <div>
-        <h1>Phonebook</h1>
-        <form onSubmit={this.handleSubmit}>
-          <label>
-            Name:
-            <input
-              type="text"
-              name="name"
-              value={name}
-              onChange={this.handleChangeName}
-              pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-              title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-              required
-            />
-          </label>
-          <label>
-            Number:
-            <input
-              type="tel"
-              name="number"
-              value={number}
-              onChange={this.handleChangeNumber}
-              pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-              title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-              required
-            />
-          </label>
-          <button type="submit">Add contact </button>
-        </form>
-        <h2>Contacts</h2>
-        <label>
-          Find contacts by name
-          <input
-            type="text"
-            name="name"
-            value={filter}
-            onChange={this.handleFilter}
-          />
-        </label>
+      <Layout>
+        <HeadTitle>Phonebook</HeadTitle>
+        <ContactForm onSubmit={this.addContact} />
+
+        <ContactsTitle>Contacts</ContactsTitle>
+        <Filter value={filter} onChangeFilter={this.handleFilter} />
+
         <Contacts
           contacts={filterContacts}
           onDelete={this.handleDelete}
         ></Contacts>
-      </div>
+        <GlobalStyle />
+      </Layout>
     );
   }
 }
